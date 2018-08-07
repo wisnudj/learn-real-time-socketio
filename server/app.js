@@ -18,12 +18,12 @@ io.on('connection', (socket) => {
     console.log('new user connected')
 
     /*
-        this will send message to only one socket
+        this will send message to only one socket that is sender
     */
-    //  socket.emit('newMessage', {
-    //      from: 'Admin',
-    //      text: 'welcome to the user connected'
-    //  })
+     socket.emit('newMessage', {
+         from: 'Admin',
+         text: 'welcome to the user connected'
+     })
 
     /* 
         it will send message to all connection socket except sender.
@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
     */
      socket.broadcast.emit('newMessage', {
         from: 'Admin',
-        text: 'welcome to the user connected'
+        text: '1 user has connected'
      })
 
     socket.on("createEmail", (newEmail) => {
@@ -65,6 +65,16 @@ io.on('connection', (socket) => {
             text: newEmail.text,
             createdAt: new Date().getTime()
         })
+    })
+
+    socket.on('createMessage', (message, callback) => {
+        console.log('createMessage', message)
+        io.emit('newMessage', { 
+            from: message.from,
+            text: message.text
+        })
+        // passing callback
+        callback("this is from server");
     })
 
     socket.on('disconnect', () => {
