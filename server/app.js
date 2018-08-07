@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('createLocationMessage', (coords) => {
-        io.emit('newMessage', {
+        io.emit('newLocationMessage', {
             from: 'Admin',
             text: `${coords.latitude}, ${coords.longitude}`
         })
