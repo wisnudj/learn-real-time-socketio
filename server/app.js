@@ -17,14 +17,54 @@ var io = socketIO(server)
 io.on('connection', (socket) => {
     console.log('new user connected')
 
-    socket.emit("newEmail", {
-        from: "jaya@gm.com",
-        text: "Hai from server",
-        createdAt: 123
-    })
+    /*
+        this will send message to only one socket
+    */
+    //  socket.emit('newMessage', {
+    //      from: 'Admin',
+    //      text: 'welcome to the user connected'
+    //  })
+
+    /* 
+        it will send message to all connection socket except sender.
+        it can be use to tell other client that new person connection
+    */
+     socket.broadcast.emit('newMessage', {
+        from: 'Admin',
+        text: 'welcome to the user connected'
+     })
 
     socket.on("createEmail", (newEmail) => {
         console.log("createEmail", newEmail)
+
+        //emit new Message to all socket because io is group socket
+        // io.emit('newMessage', {
+        //     from: newEmail.from,
+        //     text: newEmail.text,
+        //     createdAt: new Date().getTime()
+        // })
+
+        /*
+            emit new message to 1 socket client. so when client send message via create email 
+            and then server will emit newMessage to 1 client only
+        */
+        // socket.emit('newMessage', {
+        //     from: newEmail.from,
+        //     text: newEmail.text,
+        //     createdAt: new Date().getTime()
+        // })
+        
+
+        /*  
+            or you can use socket broadcast emit,
+            if you use socket.broadcast.emit all client will
+            received except sender
+        */
+        socket.broadcast.emit('newMessage', {
+            from: newEmail.from,
+            text: newEmail.text,
+            createdAt: new Date().getTime()
+        })
     })
 
     socket.on('disconnect', () => {

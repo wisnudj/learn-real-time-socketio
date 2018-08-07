@@ -5,15 +5,15 @@ socket.on('connect', function() {
     console.log('Connected to server')
 
     // emit create email after connect
-    socket.emit('createEmail', {
-        to: 'jen@gm.com',
-        text: 'hey this is andrew'
-    })
+    // socket.emit('createEmail', {
+    //     to: 'jen@gm.com',
+    //     text: 'hey this is andrew'
+    // })
 })
 
 // received email from server that emit newEmail
-socket.on('newEmail', function(email) {
-    console.log('new email', email)
+socket.on('newMessage', function(email) {
+    console.log('new Message', email)
 })
 
 // Received this message if disconnect from server
