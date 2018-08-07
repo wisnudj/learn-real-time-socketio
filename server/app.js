@@ -10,12 +10,22 @@ app.use(express.static(publicPath))
 var io = socketIO(server)
 
 /* 
-    io mewakili kumpulan socket
-    socket mewakili satu socket
+    io is group socket
+    socket is one connected socket
 */
 
 io.on('connection', (socket) => {
     console.log('new user connected')
+
+    socket.emit("newEmail", {
+        from: "jaya@gm.com",
+        text: "Hai from server",
+        createdAt: 123
+    })
+
+    socket.on("createEmail", (newEmail) => {
+        console.log("createEmail", newEmail)
+    })
 
     socket.on('disconnect', () => {
         console.log("User telah disconnect")
