@@ -3,6 +3,8 @@ const http = require('http')
 const express = require('express')
 const socketIO = require('socket.io')
 
+const { isRealString } = require('./utils/validation.js')
+
 const publicPath = path.join(__dirname, '../public')
 var app = express()
 var server = http.createServer(app)
@@ -17,21 +19,43 @@ var io = socketIO(server)
 io.on('connection', (socket) => {
     console.log('new user connected')
 
-    /*
-        this will send message to only one socket that is sender
-    */
-     socket.emit('newMessage', {
-         from: 'Admin',
-         text: 'welcome to the user connected'
-     })
+     socket.on('join', (params, callback) => {
+         if(!isRealString(params.name) || !isRealString(params.room)) {
+             callback("name and room are required")
+         }
 
-    /* 
-        it will send message to all connection socket except sender.
-        it can be use to tell other client that new person connection
-    */
-     socket.broadcast.emit('newMessage', {
-        from: 'Admin',
-        text: '1 user has connected'
+         /*
+            socket join to room
+            first parameter: room name
+         */
+
+        socket.join(params.room)
+        // socket.leave(name_room)
+
+        /*
+            io.emit                 ----> io.to(room_name).emit
+            socket.broadcast.emit   ----> socket.broadcast.to(room_name).emit
+            socket.emit
+        */
+
+        /*
+            this will send message to only one socket that is sender
+        */
+        socket.emit('newMessage', {
+            from: 'Admin',
+            text: 'welcome to the user connected'
+        })
+
+        /* 
+            it will send message to all connection socket in same room except sender.
+            it can be use to tell other client in room that new person connection
+        */
+        socket.broadcast.to(params.room).emit('newMessage', {
+            from: 'Admin',
+            text: `${params.name} has join`
+        })        
+
+        callback();
      })
 
     socket.on("createEmail", (newEmail) => {
