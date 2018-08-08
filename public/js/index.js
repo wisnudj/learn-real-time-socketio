@@ -26,6 +26,7 @@ socket.on('connect', function() {
             window.location.href = "/"
         } else {
             console.log("no error")
+
         }
     })
 })
@@ -88,9 +89,6 @@ locationButton.on('click', function() {
     })
 })
 
-
-
-
 jQuery('#message-form').on('submit', function(e) {
     e.preventDefault()
     socket.emit("createMessage", {
@@ -99,4 +97,5 @@ jQuery('#message-form').on('submit', function(e) {
     }, function(data) {
         console.log('Got it ', data)
     })
+    jQuery('#input_message').val("")
 })

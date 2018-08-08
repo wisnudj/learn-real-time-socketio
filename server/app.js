@@ -100,11 +100,15 @@ io.on('connection', (socket) => {
     })
 
     socket.on('createMessage', (message, callback) => {
-        console.log('createMessage', message)
-        io.emit('newMessage', { 
-            from: message.from,
-            text: message.text
-        })
+
+        var user = users.getUser(socket.id)
+
+        if(user && isRealString(message.text)) {
+            io.to(user.room).emit('newMessage', { 
+                from: user.name,
+                text: message.text
+            })
+        }
         // passing callback
         callback("this is from server");
     })
