@@ -4,12 +4,14 @@ const express = require('express')
 const socketIO = require('socket.io')
 
 const { isRealString } = require('./utils/validation.js')
+const { Users } = require('./utils/users.js')
 
 const publicPath = path.join(__dirname, '../public')
 var app = express()
 var server = http.createServer(app)
 app.use(express.static(publicPath))
 var io = socketIO(server)
+var users = new Users()
 
 /* 
     io is group socket
@@ -32,11 +34,17 @@ io.on('connection', (socket) => {
         socket.join(params.room)
         // socket.leave(name_room)
 
+        users.removeUser(socket.id)
+        users.addUser(socket.id, params.name, params.room)
+
         /*
             io.emit                 ----> io.to(room_name).emit
             socket.broadcast.emit   ----> socket.broadcast.to(room_name).emit
             socket.emit
         */
+
+
+        io.to(params.room).emit('updateUserList', users.getUserList(params.room))
 
         /*
             this will send message to only one socket that is sender
@@ -53,7 +61,7 @@ io.on('connection', (socket) => {
         socket.broadcast.to(params.room).emit('newMessage', {
             from: 'Admin',
             text: `${params.name} has join`
-        })        
+        })
 
         callback();
      })
@@ -110,6 +118,13 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log("User telah disconnect")
+
+        var user = users.removeUser(socket.id)
+
+        if(user) {
+            io.to(user.room).emit('updateUserList', users.getUserList(user.room))
+            io.to(user.room).emit('newMessage', { from: "admin", text: `${user.name} has left room` })
+        }
     })
 })
 
